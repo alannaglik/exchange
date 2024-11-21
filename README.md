@@ -30,9 +30,6 @@ curl -X GET --location "http://localhost:8080/api/konta"
 curl -X PUT --location "http://localhost:8080/api/konta/{{identyfikatorKonta}}/przeliczanaWaluta/{kodWaluty}"
 Uwaga: należy podać konkrety identyfikator użytkownika dla {{identyfikatorKonta}} oraz trzyliterowy kod waluty {{kodWaluty}}
 
-## Pobranie aktualnej wersji API:
-curl -X GET --location http://localhost:8080/api/konta/api
-
 
 # Baza danych H2
 Dane zapisywane są przez aplikację do pamięciowej bazy danych H2. 
