@@ -52,10 +52,10 @@ public class OdczytKursuWalutyService {
 	}
 
 	private BigDecimal odczytajKursWalutyZObjektuJson(String json) {
-		double aktualnyKurs = 0;
-		var jsonObject = new JSONObject(json);
+		double aktualnyKurs;
 
 		try {
+			var jsonObject = new JSONObject(json);
 			var odczytanaTablicaZKurasamiWaluty = (JSONObject) jsonObject.getJSONArray(NAZWA_TABLICY_KURSU_SPRZEDAZY_WALUTY).get(0);
 			aktualnyKurs = odczytanaTablicaZKurasamiWaluty.getDouble(POLE_PRZELICZONY_KURS_SPRZEDAZY_WALUTY);
 		} catch (JSONException ex) {
