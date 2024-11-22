@@ -8,7 +8,7 @@ import org.anaglik.exchange.przeliczenie.waluty.IPrzeliczenieWaluty;
 import org.anaglik.exchange.przeliczenie.waluty.PrzeliczenieWalutyDoPLN;
 import org.anaglik.exchange.przeliczenie.waluty.PrzeliczenieWalutyDoUSD;
 import org.anaglik.exchange.repozytoria.KontoRepository;
-import org.anaglik.exchange.wyjatki.WeryfikacjaPrzeliczeniaWalutyException;
+import org.anaglik.exchange.wyjatki.PrzeliczenieWalutyException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,32 +28,32 @@ public class PrzeliczenieWalutyService {
 	 * Metoda realizuje przeliczenie dla podanej waluty
 	 *
 	 * @param konto             konto użytkownika
-	 * @param przeliczonaWaluta przeliczona waluta
+	 * @param przeliczanaWaluta przeliczona waluta
 	 * @return przeliczone konto
 	 */
-	public Konto przeliczWalute(Konto konto, Waluta przeliczonaWaluta) {
+	public Konto przeliczWalute(Konto konto, Waluta przeliczanaWaluta) {
 
-		IPrzeliczenieWaluty przeliczenieWaluty = zwrocTypPrzeliczeniaWaluty(przeliczonaWaluta);
+		IPrzeliczenieWaluty przeliczenieWaluty = zwrocTypPrzeliczeniaWaluty(przeliczanaWaluta);
 
 		boolean wynikWeryfikacji = przeliczenieWaluty.weryfikujMozliwoscPrzeliczeniaWaluty(konto);
 		if (!wynikWeryfikacji) {
-			throw new WeryfikacjaPrzeliczeniaWalutyException("Blad weryfikacji dla przeliczenia");
+			throw new PrzeliczenieWalutyException("Blad weryfikacji dla przeliczenia");
 		}
-		var zaktualizowaneKonto = przeliczenieWaluty.wykonajPrzeliczenieWaluty(konto, przeliczonaWaluta);
+		var zaktualizowaneKonto = przeliczenieWaluty.wykonajPrzeliczenieWaluty(konto, przeliczanaWaluta);
 		kontoRepository.save(zaktualizowaneKonto);
 		return zaktualizowaneKonto;
 	}
 
-	private IPrzeliczenieWaluty zwrocTypPrzeliczeniaWaluty(Waluta przeliczonaWaluta) {
-		log.info("Wykonuje metode zwrocTypPrzeliczeniaWaluty dla waluty: {}", przeliczonaWaluta);
+	private IPrzeliczenieWaluty zwrocTypPrzeliczeniaWaluty(Waluta przeliczanaWaluta) {
+		log.info("Wykonuje metode zwrocTypPrzeliczeniaWaluty dla waluty: {}", przeliczanaWaluta);
 		IPrzeliczenieWaluty przeliczenieWaluty;
 
-		switch (przeliczonaWaluta) {
+		switch (przeliczanaWaluta) {
 			case ZLOTY -> przeliczenieWaluty = przeliczenieWalutyDoPLN;
 			case DOLAR_AMERYKANSKI -> przeliczenieWaluty = przeliczenieWalutyDoUSD;
 			default -> {
-				log.error("Blad zwracania typu przeliczenia waluty. Wprowadzono nieobslugiwana walute: {}", przeliczonaWaluta);
-				throw new IllegalStateException("Blad zwracania typu przeliczenia waluty. Wprowadzono nieobslugiwana walute: {}" + przeliczonaWaluta);
+				log.error("Blad zwracania typu przeliczenia waluty. Wprowadzono nieobslugiwana walute: {}", przeliczanaWaluta);
+				throw new PrzeliczenieWalutyException("Blad zwracania typu przeliczenia waluty. Wprowadzono nieobslugiwana walute: {}" + przeliczanaWaluta);
 			}
 		}
 		return przeliczenieWaluty;

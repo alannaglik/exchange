@@ -18,6 +18,9 @@
     <properties>
         <java.version>21</java.version>
         <nbp.rest.adres>http://api.nbp.pl/api/exchangerates/rates/{table}/{code}/</nbp.rest.adres>
+        <commons.lang3.version>3.15.0</commons.lang3.version>
+        <org.json.version>20240303</org.json.version>
+        <org.testng.version>7.10.2</org.testng.version>
     </properties>
 
     <dependencies>
@@ -42,7 +45,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.15.0</version>
+            <version>${commons.lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -52,7 +55,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20240303</version>
+            <version>${org.json.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -62,7 +65,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>7.10.2</version>
+            <version>${org.testng.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -15,6 +15,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 
+/**
+ * Klasa realizuje odczyt aktualnego kursu waluty z API NBP.
+ */
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -31,11 +35,11 @@ public class OdczytKursuWalutyService {
 	 * NBP Web API oferuje 3 tabele (A, B, C) kursów walut obcych.
 	 * Jedynie tabela C udostępnia kurs kupna walut obcych.
 	 */
-	public BigDecimal odczytajKursWaluty(Waluta przeliczonaWaluta) {
-		log.debug("Pobieram z NBP aktualny kurs kupna dla waluty: {}", przeliczonaWaluta);
+	public BigDecimal odczytajKursWaluty(Waluta przeliczanaWaluta) {
+		log.debug("Pobieram z NBP aktualny kurs kupna dla waluty: {}", przeliczanaWaluta);
 		try {
 			String endpointUslugi = systemConfig.getAdresPobranejAktualnejTabeliKursow();
-			ResponseEntity<String> odpowiedz = restTemplate.getForEntity(endpointUslugi, String.class, TABELA_KURSOW, przeliczonaWaluta.getKodWaluty());
+			ResponseEntity<String> odpowiedz = restTemplate.getForEntity(endpointUslugi, String.class, TABELA_KURSOW, przeliczanaWaluta.getKodWaluty());
 
 			if (odpowiedz.getStatusCode() == HttpStatus.OK) {
 				return odczytajKursWalutyZObjektuJson(odpowiedz.getBody());

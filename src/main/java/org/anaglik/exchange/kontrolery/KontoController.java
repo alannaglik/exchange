@@ -35,8 +35,7 @@ public class KontoController {
 	private final KontoService kontoService;
 
 	@PostMapping
-	public ResponseEntity<Long> utworzKontoUzytkownika(@Valid @RequestBody KontoPayloadRecord kontoPayload,
-													   BindingResult bindingResult) {
+	public ResponseEntity<Long> utworzKontoUzytkownika(@Valid @RequestBody KontoPayloadRecord kontoPayload, BindingResult bindingResult) {
 		log.info("Wykonuje metode utworzKontoUzytkownika.");
 		if (bindingResult.hasErrors()) {
 			log.error("Blad walidacji przy tworzeniu konta uzytkownika.");
@@ -80,13 +79,12 @@ public class KontoController {
 
 	@GetMapping
 	public ResponseEntity<Long> zwrocLiczbeKontUzytkownikow() {
-		log.info("Wykonuje metode pobierzKontoUzytkownika.");
+		log.info("Wykonuje metode zwrocLiczbeKontUzytkownikow.");
 		return ResponseEntity.ok(kontoService.zwrocLiczbeKontUzytkownikow());
 	}
 
 	@PutMapping("/{identyfikatorKonta}/przeliczanaWaluta/{kodWaluty}")
-	public ResponseEntity<Konto> aktualizujKontoDlaPrzeliczeniaWaluty(@PathVariable long identyfikatorKonta,
-																	  @PathVariable String kodWaluty) {
+	public ResponseEntity<Konto> aktualizujKontoDlaPrzeliczeniaWaluty(@PathVariable long identyfikatorKonta, @PathVariable String kodWaluty) {
 		log.info("Wykonuje metode aktualizujKontoDlaPrzeliczeniaWaluty.");
 		return ResponseEntity.ok(kontoService.aktualizujKontoDlaPrzeliczeniaWaluty(identyfikatorKonta, Waluta.getByKodWaluty(kodWaluty)));
 	}
