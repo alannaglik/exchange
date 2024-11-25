@@ -25,6 +25,18 @@ public class WeryfikacjaPrzeliczenia {
 		return this;
 	}
 
+	public WeryfikacjaPrzeliczenia weryfikujStanKwotyWymiany(BigDecimal kwotaWymiany) {
+		if (czyWeryfikacjaZBledem()) {
+			return this;
+		}
+		if (BigDecimalUtils.czy(kwotaWymiany).jestRowne(BigDecimal.ZERO)) {
+			wynikWeryfikacji = true;
+			komunikatBledu = "Blad weryfikacji przeliczenia. Kwota wymiany nie może być 0.0";
+		}
+
+		return this;
+	}
+
 	public WeryfikacjaPrzeliczenia weryfikujIstnienieSaldaDlaWaluty(List<Saldo> saldaUzytkownika, Waluta waluta) {
 		if (czyWeryfikacjaZBledem()) {
 			return this;

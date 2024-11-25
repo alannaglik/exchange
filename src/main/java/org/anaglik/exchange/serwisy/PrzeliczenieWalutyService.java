@@ -12,6 +12,7 @@ import org.anaglik.exchange.wyjatki.PrzeliczenieWalutyException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * Klasa realizuje przeliczenie waluty dla konta użytkownika.
@@ -32,22 +33,23 @@ public class PrzeliczenieWalutyService {
 	 *
 	 * @param konto        konto użytkownika
 	 * @param walutaZ      waluta, z której wykonujemy przeliczenie
-	 * @param WalutaDo     waluta, z której wykonujemy przeliczenie
+	 * @param walutaDo     waluta, z której wykonujemy przeliczenie
 	 * @param kwotaWymiany kwota do wymiany
 	 * @return zaktualizowane konto użytkownika
 	 */
-	public Konto przeliczWalute(Konto konto, Waluta walutaZ, Waluta WalutaDo, BigDecimal kwotaWymiany) {
+	public Konto przeliczWalute(Konto konto, Waluta walutaZ, Waluta walutaDo, BigDecimal kwotaWymiany) {
 
-		var weryfikacjaPrzeliczenia = weryfikujMozliwoscPrzeliczeniaWaluty(konto, walutaZ, WalutaDo, kwotaWymiany);
+		var weryfikacjaPrzeliczenia = weryfikujMozliwoscPrzeliczeniaWaluty(konto, walutaZ, walutaDo, kwotaWymiany);
 		if (weryfikacjaPrzeliczenia.czyWeryfikacjaZBledem()) {
 			throw new PrzeliczenieWalutyException(weryfikacjaPrzeliczenia.komunikatBledu());
 		}
 
-		return wykonajPrzeliczenieWaluty(konto, walutaZ, WalutaDo, kwotaWymiany);
+		return wykonajPrzeliczenieWaluty(konto, walutaZ, walutaDo, kwotaWymiany);
 	}
 
 	private WeryfikacjaPrzeliczenia weryfikujMozliwoscPrzeliczeniaWaluty(Konto konto, Waluta walutaZ, Waluta walutaDo, BigDecimal kwotaWymiany) {
 		return weryfikacjaPrzeliczenia.utworz()
+				.weryfikujStanKwotyWymiany(kwotaWymiany)
 				.weryfikujIstnienieSaldaDlaWaluty(konto.getSalda(), walutaZ)
 				.weryfikujIstnienieSaldaDlaWaluty(konto.getSalda(), walutaDo)
 				.weryfikujStanKonta(konto.getSalda(), walutaZ, kwotaWymiany);
@@ -57,28 +59,35 @@ public class PrzeliczenieWalutyService {
 	//TODO: @Transactional
 	private Konto wykonajPrzeliczenieWaluty(Konto konto, Waluta walutaZ, Waluta walutaDo, BigDecimal kwotaWymiany) {
 
+		//Przeliczam saldoZ
 		var saldoZ = odczytajSaldoZKonta(konto, walutaZ);
 		saldoZ.setSaldoKonta(saldoZ.getSaldoKonta().subtract(kwotaWymiany));
 
+		//Przeliczam saldoDo
 		var saldoDo = odczytajSaldoZKonta(konto, walutaDo);
 		var walutaOdczytu = odczytajWaluteObca(walutaZ, walutaDo);
-		var kierunekPrzeliczenia = odczytajKierunekPrzeliczania(walutaZ);
-		BigDecimal pobranyKursWaluty = odczytKursuWalutyService.odczytajKursWaluty(walutaOdczytu, kierunekPrzeliczenia);
-		var przeliczoneSrodkiPoWymianie = kwotaWymiany.multiply(pobranyKursWaluty);
-		saldoDo.setSaldoKonta(saldoDo.getSaldoKonta().add(przeliczoneSrodkiPoWymianie));
+		if (Objects.requireNonNull(walutaZ) == Waluta.ZLOTY) {
+			var pobranyKursWaluty = odczytKursuWalutyService.odczytajKursWaluty(walutaOdczytu, KierunekPrzeliczania.SPRZEDAZ);
+			var przeliczoneSrodkiPoWymianie = kwotaWymiany.divide(pobranyKursWaluty); //RoundingMode
+			saldoDo.setSaldoKonta(saldoDo.getSaldoKonta().add(przeliczoneSrodkiPoWymianie));
+		} else {
+			var pobranyKursWaluty = odczytKursuWalutyService.odczytajKursWaluty(walutaOdczytu, KierunekPrzeliczania.ZAKUP);
+			var przeliczoneSrodkiPoWymianie = kwotaWymiany.multiply(pobranyKursWaluty);
+			saldoDo.setSaldoKonta(saldoDo.getSaldoKonta().add(przeliczoneSrodkiPoWymianie));
+		}
 
 		saldoRepository.save(saldoZ);
 		saldoRepository.save(saldoDo);
 		return konto;
 	}
 
-	private Saldo odczytajSaldoZKonta(Konto konto, Waluta waluta) {
-		return konto.getSalda().stream().filter(s -> s.getWaluta().equals(waluta)).findFirst().get();
+
+	private static Saldo odczytajSaldoZKonta(Konto konto, Waluta waluta) {
+		return konto.getSalda().stream().filter(s -> s.getWaluta() == waluta).findFirst().get();
 	}
-	private Waluta odczytajWaluteObca(Waluta walutaZ, Waluta walutaDo) {
-		return Waluta.ZLOTY == walutaZ ? walutaDo : walutaZ;
-	}
-	private KierunekPrzeliczania odczytajKierunekPrzeliczania(Waluta walutaZ) {
-		return Waluta.ZLOTY == walutaZ ? KierunekPrzeliczania.SPRZEDAZ : KierunekPrzeliczania.ZAKUP;
+
+	private static Waluta odczytajWaluteObca(Waluta walutaZ, Waluta walutaDo) {
+		if (Waluta.ZLOTY == walutaZ) return walutaDo;
+		return walutaZ;
 	}
 }

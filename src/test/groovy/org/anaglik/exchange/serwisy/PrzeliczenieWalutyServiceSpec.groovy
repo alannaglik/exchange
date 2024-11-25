@@ -1,4 +1,4 @@
-package org.anaglik.exchange
+package org.anaglik.exchange.serwisy
 
 import org.anaglik.exchange.enumy.KierunekPrzeliczania
 import org.anaglik.exchange.enumy.Waluta
@@ -6,8 +6,6 @@ import org.anaglik.exchange.modele.Konto
 import org.anaglik.exchange.modele.Saldo
 import org.anaglik.exchange.przeliczenie.waluty.weryfikacja.WeryfikacjaPrzeliczenia
 import org.anaglik.exchange.repozytoria.SaldoRepository
-import org.anaglik.exchange.serwisy.OdczytKursuWalutyService
-import org.anaglik.exchange.serwisy.PrzeliczenieWalutyService
 import org.anaglik.exchange.wyjatki.PrzeliczenieWalutyException
 import spock.lang.Specification
 
@@ -37,11 +35,11 @@ class PrzeliczenieWalutyServiceSpec extends Specification {
 
         then:
             wynik != null
-            def odczytaneSaldoPLN = odczytajSaldPoId(wynik, 1L)
+            def odczytaneSaldoPLN = odczytajSaldoPoId(wynik, 1L)
             odczytaneSaldoPLN.saldoKonta.equals(BigDecimal.valueOf(9.0))
 
-            def odczytaneSaldoUSD = odczytajSaldPoId(wynik, 2L)
-            odczytaneSaldoUSD.saldoKonta.equals(BigDecimal.valueOf(6.0))
+            def odczytaneSaldoUSD = odczytajSaldoPoId(wynik, 2L)
+            odczytaneSaldoUSD.saldoKonta.equals(BigDecimal.valueOf(2.25))
     }
 
     def "powinien poprawnie przeliczyc walute na PLN"() {
@@ -62,11 +60,13 @@ class PrzeliczenieWalutyServiceSpec extends Specification {
 
         then:
             wynik != null
-            def odczytaneSaldoPLN = odczytajSaldPoId(wynik, 1L)
+            def odczytaneSaldoPLN = odczytajSaldoPoId(wynik, 1L)
             odczytaneSaldoPLN.saldoKonta.equals(BigDecimal.valueOf(14.0))
 
-            def odczytaneSaldoUSD = odczytajSaldPoId(wynik, 2L)
+            def odczytaneSaldoUSD = odczytajSaldoPoId(wynik, 2L)
             odczytaneSaldoUSD.saldoKonta.equals(BigDecimal.valueOf(1.0))
+
+            2 * saldoRepository.save(_ as Saldo)
     }
 
     def "powinien zglosic wyjatek dla bledu weryfikacji przeliczenia waluty jesli brak drugiego salda"() {
@@ -103,7 +103,7 @@ class PrzeliczenieWalutyServiceSpec extends Specification {
                 .waluta(waluta).build()
     }
 
-    private Saldo odczytajSaldPoId(Konto konto, Long id) {
+    private Saldo odczytajSaldoPoId(Konto konto, Long id) {
         return konto.salda.stream().filter(s -> s.identyfikatorSalda == id).findFirst().get()
     }
 }

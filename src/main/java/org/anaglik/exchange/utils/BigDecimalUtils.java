@@ -25,5 +25,19 @@ public class BigDecimalUtils {
         public boolean jestWiekszeOd(BigDecimal wartoscDoPorownania) {
             return wartosc != null && wartosc.compareTo(wartoscDoPorownania) > 0;
         }
+
+		/**
+		 * Metoda porównuje dwie zmienne poprzez compareTo.
+		 * W przypadku dwóch wartości null zwraca true.
+		 *
+		 * @param wartoscDoPorownania wartość do porównania
+		 * @return czy wartości równe
+		 */
+		public boolean jestRowne(BigDecimal wartoscDoPorownania) {
+			if (wartosc == null && wartoscDoPorownania == null) {
+				return true;
+			}
+			return wartosc != null && wartosc.compareTo(wartoscDoPorownania) == 0;
+		}
     }
 }
