@@ -24,6 +24,7 @@ public class PrzeliczenieWalutyService {
 
 	private final OdczytKursuWalutyService odczytKursuWalutyService;
 	private final SaldoRepository saldoRepository;
+	private final WeryfikacjaPrzeliczenia weryfikacjaPrzeliczenia;
 
 
 	/**
@@ -46,7 +47,7 @@ public class PrzeliczenieWalutyService {
 	}
 
 	private WeryfikacjaPrzeliczenia weryfikujMozliwoscPrzeliczeniaWaluty(Konto konto, Waluta walutaZ, Waluta walutaDo, BigDecimal kwotaWymiany) {
-		return new WeryfikacjaPrzeliczenia()
+		return weryfikacjaPrzeliczenia.utworz()
 				.weryfikujIstnienieSaldaDlaWaluty(konto.getSalda(), walutaZ)
 				.weryfikujIstnienieSaldaDlaWaluty(konto.getSalda(), walutaDo)
 				.weryfikujStanKonta(konto.getSalda(), walutaZ, kwotaWymiany);

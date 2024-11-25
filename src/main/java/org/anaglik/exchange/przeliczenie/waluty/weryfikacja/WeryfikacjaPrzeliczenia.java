@@ -4,6 +4,7 @@ import org.anaglik.exchange.enumy.Waluta;
 import org.anaglik.exchange.modele.Saldo;
 import org.anaglik.exchange.utils.BigDecimalUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -12,10 +13,17 @@ import java.util.List;
  * Klasa dla weryfikacji sald konta użytkownika.
  */
 
+@Component
 public class WeryfikacjaPrzeliczenia {
 
-	private boolean wynikWeryfikacji = false;
-	private String komunikatBledu = null;
+	private boolean wynikWeryfikacji;
+	private String komunikatBledu;
+
+	public WeryfikacjaPrzeliczenia utworz() {
+		wynikWeryfikacji = false;
+		komunikatBledu = null;
+		return this;
+	}
 
 	public WeryfikacjaPrzeliczenia weryfikujIstnienieSaldaDlaWaluty(List<Saldo> saldaUzytkownika, Waluta waluta) {
 		if (czyWeryfikacjaZBledem()) {

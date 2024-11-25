@@ -1,5 +1,6 @@
 package org.anaglik.exchange.serwisy;
 
+import org.anaglik.exchange.enumy.KierunekPrzeliczania;
 import org.anaglik.exchange.enumy.Waluta;
 import org.anaglik.exchange.konfiguracje.TechniczneParametryKonfiguracji;
 import org.anaglik.exchange.wyjatki.OdczytKursuWalutyException;
@@ -60,7 +61,7 @@ public class OdczytKursuWalutyServiceTest {
 		when(restTemplate.getForEntity(eq(ENDPOINT_USLUGI), any(Class.class), eq(TABELA_KURSOW), eq(przeliczanaWaluta.getKodWaluty()))).thenReturn(oczekiwanaOdpowiedz);
 
 		//when
-		final BigDecimal wynik = sut.odczytajKursWaluty(przeliczanaWaluta);
+		final BigDecimal wynik = sut.odczytajKursWaluty(przeliczanaWaluta, KierunekPrzeliczania.SPRZEDAZ);
 
 		//then
 		assertThat(wynik).isNotNull()
@@ -77,7 +78,7 @@ public class OdczytKursuWalutyServiceTest {
 		when(restTemplate.getForEntity(eq(ENDPOINT_USLUGI), any(Class.class), eq(TABELA_KURSOW), eq(przeliczanaWaluta.getKodWaluty()))).thenReturn(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
 		//when
-		sut.odczytajKursWaluty(przeliczanaWaluta);
+		sut.odczytajKursWaluty(przeliczanaWaluta, KierunekPrzeliczania.ZAKUP);
 
 		//then OdczytKursuWalutyException
 	}
@@ -92,7 +93,7 @@ public class OdczytKursuWalutyServiceTest {
 		when(restTemplate.getForEntity(eq(ENDPOINT_USLUGI), any(Class.class), eq(TABELA_KURSOW), eq(przeliczanaWaluta.getKodWaluty()))).thenReturn(oczekiwanaOdpowiedz);
 
 		//when
-		sut.odczytajKursWaluty(przeliczanaWaluta);
+		sut.odczytajKursWaluty(przeliczanaWaluta, KierunekPrzeliczania.ZAKUP);
 
 		//then OdczytKursuWalutyException
 	}
@@ -106,7 +107,7 @@ public class OdczytKursuWalutyServiceTest {
 		when(restTemplate.getForEntity(eq(ENDPOINT_USLUGI), any(Class.class), eq(TABELA_KURSOW), eq(przeliczanaWaluta.getKodWaluty()))).thenThrow(new OdczytKursuWalutyException("Blad konwersji JSON"));
 
 		//when
-		sut.odczytajKursWaluty(przeliczanaWaluta);
+		sut.odczytajKursWaluty(przeliczanaWaluta, KierunekPrzeliczania.ZAKUP);
 
 		//then OdczytKursuWalutyException
 	}
@@ -120,7 +121,7 @@ public class OdczytKursuWalutyServiceTest {
 		when(restTemplate.getForEntity(eq(ENDPOINT_USLUGI), any(Class.class), eq(TABELA_KURSOW), eq(przeliczanaWaluta.getKodWaluty()))).thenThrow(new RestClientException("msg"));
 
 		//when
-		sut.odczytajKursWaluty(przeliczanaWaluta);
+		sut.odczytajKursWaluty(przeliczanaWaluta, KierunekPrzeliczania.ZAKUP);
 
 		//then OdczytKursuWalutyException
 	}
