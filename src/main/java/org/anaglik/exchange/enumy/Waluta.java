@@ -12,7 +12,8 @@ import lombok.RequiredArgsConstructor;
 public enum Waluta {
 
 	ZLOTY("PLN", "Polska"),
-	DOLAR_AMERYKANSKI("USD", "Stany Zjednoczonone");
+	DOLAR_AMERYKANSKI("USD", "Stany Zjednoczonone"),
+	EURO("EUR", "Europa");
 
 	private final String kodWaluty;
 	private final String kraj;

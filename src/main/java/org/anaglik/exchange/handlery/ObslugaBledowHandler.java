@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.anaglik.exchange.enumy.DefinicjeBledu;
 import org.anaglik.exchange.wyjatki.OdczytKontaUzytkownikaException;
 import org.anaglik.exchange.wyjatki.OdczytKursuWalutyException;
+import org.anaglik.exchange.wyjatki.PrzeliczenieWalutyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,6 +40,18 @@ public class ObslugaBledowHandler {
 	protected ResponseEntity<WyjatekDto> obsluzOdczytKontaUzytkownikaException(OdczytKontaUzytkownikaException ex) {
 		log.error("Blad odczytu dla nieistniejacego uzytkownika", ex);
 		return budujResponse(ex, DefinicjeBledu.BRAK_DANYCH_PRZY_ODCZYCIE);
+	}
+
+	/**
+	 * Obsługuje wyjątek dla błędu podczas przeliczania.
+	 *
+	 * @param ex przejęty wyjątek związany z błędem przeliczania
+	 * @return odpowiedź zawierająca kod i opis wyjątku
+	 */
+	@ExceptionHandler(PrzeliczenieWalutyException.class)
+	protected ResponseEntity<WyjatekDto> przeliczenieWalutyExceptionException(PrzeliczenieWalutyException ex) {
+		log.error("Blad podczas przeliczenia waluty", ex);
+		return budujResponse(ex, DefinicjeBledu.BLAD_PRZELICZENIA_WALUTY);
 	}
 
 	private ResponseEntity<WyjatekDto> budujResponse(Exception ex, DefinicjeBledu definicjeBledu) {

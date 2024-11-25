@@ -2,6 +2,7 @@ package org.anaglik.exchange.serwisy;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.anaglik.exchange.enumy.KierunekPrzeliczania;
 import org.anaglik.exchange.enumy.Waluta;
 import org.anaglik.exchange.konfiguracje.TechniczneParametryKonfiguracji;
 import org.anaglik.exchange.wyjatki.OdczytKursuWalutyException;
@@ -25,6 +26,7 @@ import java.math.BigDecimal;
 public class OdczytKursuWalutyService {
 
 	private static final String TABELA_KURSOW = "C";
+	private static final String POLE_PRZELICZONY_KURS_KUPNA_WALUTY = "bid";
 	private static final String POLE_PRZELICZONY_KURS_SPRZEDAZY_WALUTY = "ask";
 	private static final String NAZWA_TABLICY_KURSU_SPRZEDAZY_WALUTY = "rates";
 
@@ -35,14 +37,14 @@ public class OdczytKursuWalutyService {
 	 * NBP Web API oferuje 3 tabele (A, B, C) kursów walut obcych.
 	 * Jedynie tabela C udostępnia kurs kupna walut obcych.
 	 */
-	public BigDecimal odczytajKursWaluty(Waluta przeliczanaWaluta) {
+	public BigDecimal odczytajKursWaluty(Waluta przeliczanaWaluta, KierunekPrzeliczania kierunekPrzeliczania) {
 		log.debug("Pobieram z NBP aktualny kurs kupna dla waluty: {}", przeliczanaWaluta);
 		try {
 			String endpointUslugi = systemConfig.getAdresPobranejAktualnejTabeliKursow();
 			ResponseEntity<String> odpowiedz = restTemplate.getForEntity(endpointUslugi, String.class, TABELA_KURSOW, przeliczanaWaluta.getKodWaluty());
 
 			if (odpowiedz.getStatusCode() == HttpStatus.OK) {
-				return odczytajKursWalutyZObjektuJson(odpowiedz.getBody());
+				return odczytajKursWalutyZObjektuJson(odpowiedz.getBody(), kierunekPrzeliczania);
 			}
 			throw new OdczytKursuWalutyException(String.format("Nieoczekiwana odpowiedz z NPB, kod odpowiedzi: %s", odpowiedz.getStatusCode().value()));
 		} catch (RestClientException ex) {
@@ -51,13 +53,14 @@ public class OdczytKursuWalutyService {
 		}
 	}
 
-	private BigDecimal odczytajKursWalutyZObjektuJson(String json) {
+	private BigDecimal odczytajKursWalutyZObjektuJson(String json, KierunekPrzeliczania kierunekPrzeliczania) {
 		double aktualnyKurs;
 
 		try {
 			var jsonObject = new JSONObject(json);
 			var odczytanaTablicaZKurasamiWaluty = (JSONObject) jsonObject.getJSONArray(NAZWA_TABLICY_KURSU_SPRZEDAZY_WALUTY).get(0);
-			aktualnyKurs = odczytanaTablicaZKurasamiWaluty.getDouble(POLE_PRZELICZONY_KURS_SPRZEDAZY_WALUTY);
+			aktualnyKurs = odczytanaTablicaZKurasamiWaluty.getDouble(
+					KierunekPrzeliczania.ZAKUP == kierunekPrzeliczania ? POLE_PRZELICZONY_KURS_KUPNA_WALUTY : POLE_PRZELICZONY_KURS_SPRZEDAZY_WALUTY);
 		} catch (JSONException ex) {
 			log.error("Blad konwersji JSON", ex);
 			throw new OdczytKursuWalutyException("Blad konwersji JSON", ex);

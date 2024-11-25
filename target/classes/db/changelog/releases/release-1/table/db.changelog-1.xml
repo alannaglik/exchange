@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
+		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet author="Utworzenie tabeli KONTO" id="exancge-an">
+        <!-- Walidacje -->
+        <preConditions>
+            <not>
+                <tableExists tableName="KONTO"/>
+            </not>
+        </preConditions>
+        <createTable tableName="KONTO">
+            <column autoIncrement="true" name="id" type="LONG">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="imie" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="nazwisko" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <!-- Roll back -->
+        <rollback>
+            <dropTable tableName="KONTO"/>
+        </rollback>
+        <comment>Utworzono tabele 'KONTO'</comment>
+    </changeSet>
+    <changeSet author="Utworzenie tabeli SALDO" id="exancge-an">
+        <!-- Walidacje -->
+        <preConditions>
+            <not>
+                <tableExists tableName="SALDO"/>
+            </not>
+        </preConditions>
+        <createTable tableName="SALDO">
+            <column autoIncrement="true" name="id" type="LONG">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="waluta" type="VARCHAR(30)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="saldo_konta" type="decimal(12,4)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="konto_id" type="bigint(20)" defaultValue="0">
+                <constraints primaryKey="true"/>
+            </column>
+        </createTable>
+        <!-- Roll back -->
+        <rollback>
+            <dropTable tableName="SALDO"/>
+        </rollback>
+        <comment>Utworzono tabele 'SALDO'</comment>
+    </changeSet>
+
+</databaseChangeLog>

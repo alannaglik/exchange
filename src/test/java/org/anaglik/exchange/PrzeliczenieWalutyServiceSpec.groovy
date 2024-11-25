@@ -2,8 +2,7 @@ package org.anaglik.exchange
 
 import org.anaglik.exchange.enumy.Waluta
 import org.anaglik.exchange.modele.Konto
-import org.anaglik.exchange.przeliczenie.waluty.PrzeliczenieWalutyDoPLN
-import org.anaglik.exchange.przeliczenie.waluty.PrzeliczenieWalutyDoUSD
+
 import org.anaglik.exchange.repozytoria.KontoRepository
 import org.anaglik.exchange.serwisy.PrzeliczenieWalutyService
 import org.anaglik.exchange.wyjatki.PrzeliczenieWalutyException

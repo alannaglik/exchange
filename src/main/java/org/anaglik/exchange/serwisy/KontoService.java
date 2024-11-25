@@ -1,10 +1,10 @@
 package org.anaglik.exchange.serwisy;
 
 import lombok.AllArgsConstructor;
-import org.anaglik.exchange.enumy.Waluta;
 import org.anaglik.exchange.modele.Konto;
 import org.anaglik.exchange.repozytoria.KontoRepository;
-import org.anaglik.exchange.wyjatki.OdczytKontaUzytkownikaException;
+import org.anaglik.exchange.repozytoria.SaldoRepository;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,7 +14,7 @@ import java.util.Optional;
 public class KontoService {
 
 	private final KontoRepository kontoRepository;
-	private final PrzeliczenieWalutyService przeliczenieWalutyService;
+	private final SaldoRepository saldoRepository;
 
 	public Long utworzKonto(Konto konto) {
 		final Konto zapisaneKonto = kontoRepository.save(konto);
@@ -29,17 +29,18 @@ public class KontoService {
 		return kontoRepository.findById(idKonta);
 	}
 
+	public Optional<Konto> pobierzKontoUrzytkownikaIJegoSalda(long idKonta) {
+		return Optional.ofNullable(kontoRepository.pobierzKontoUrzytkownikaIJegoSalda(idKonta));
+	}
+
 	public void usunKontoUzytkownika(Konto konto) {
 		long idKonta = konto.getIdentyfikatorKonta();
 		Optional<Konto> kontoDoUsuniecia = kontoRepository.findById(idKonta);
-		kontoDoUsuniecia.ifPresent(kontoRepository::delete);
-	}
-
-	public Konto aktualizujKontoDlaPrzeliczeniaWaluty(long idKonta, Waluta waluta) {
-		Optional<Konto> konto = pobierzKontoUzytkownika(idKonta);
-		if (!konto.isPresent()) {
-			throw new OdczytKontaUzytkownikaException("Wyszukiwane konto uzytkownika o id: " + idKonta + " nie istnieje");
+		if (kontoDoUsuniecia.isPresent()) {
+			if (CollectionUtils.isNotEmpty(kontoDoUsuniecia.get().getSalda())) {
+				saldoRepository.deleteAll();
+			}
+			kontoRepository.delete(kontoDoUsuniecia.get());
 		}
-		return przeliczenieWalutyService.przeliczWalute(konto.get(), waluta);
 	}
 }

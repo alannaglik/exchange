@@ -9,5 +9,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record KontoPayloadRecord(@NotEmpty(message = "Imię jest wymagane") String imie,
 								 @NotEmpty(message = "Nazwisko jest wymagane") String nazwisko,
-								 @NotNull(message = "Saldo konta jest wymagane") double saldoKontaPLN) {
+								 @NotNull(message = "Saldo konta jest wymagane") double saldoKontaPLN,
+								 double saldoKontaUSD) {
 }

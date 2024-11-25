@@ -5,20 +5,24 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Encja reprezentująca konto użytkownika
  */
-@Data
-@Builder
+
 @Entity
 @Table(name = "konto")
+@Getter
+@Setter
+@Builder
 @AllArgsConstructor
 public class Konto {
 	@Id
@@ -30,10 +34,8 @@ public class Konto {
 	private String imie;
 	@Column(name = "nazwisko", nullable = false, length = 50)
 	private String nazwisko;
-	@Column(name = "saldo_konta_pln", nullable = false, precision = 12, scale = 4)
-	private BigDecimal saldoKontaPLN;
-	@Column(name = "saldo_konta_usd", precision = 12, scale = 4)
-	private BigDecimal saldoKontaUSD;
+	@OneToMany(mappedBy = "konto")
+	private List<Saldo> salda;
 
 	public Konto() {
 		//dla JPA

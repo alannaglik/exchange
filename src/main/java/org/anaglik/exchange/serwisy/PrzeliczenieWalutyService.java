@@ -2,14 +2,16 @@ package org.anaglik.exchange.serwisy;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.anaglik.exchange.enumy.KierunekPrzeliczania;
 import org.anaglik.exchange.enumy.Waluta;
 import org.anaglik.exchange.modele.Konto;
-import org.anaglik.exchange.przeliczenie.waluty.IPrzeliczenieWaluty;
-import org.anaglik.exchange.przeliczenie.waluty.PrzeliczenieWalutyDoPLN;
-import org.anaglik.exchange.przeliczenie.waluty.PrzeliczenieWalutyDoUSD;
-import org.anaglik.exchange.repozytoria.KontoRepository;
+import org.anaglik.exchange.modele.Saldo;
+import org.anaglik.exchange.przeliczenie.waluty.weryfikacja.WeryfikacjaPrzeliczenia;
+import org.anaglik.exchange.repozytoria.SaldoRepository;
 import org.anaglik.exchange.wyjatki.PrzeliczenieWalutyException;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 /**
  * Klasa realizuje przeliczenie waluty dla konta użytkownika.
@@ -20,43 +22,62 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class PrzeliczenieWalutyService {
 
-	private final KontoRepository kontoRepository;
-	private final PrzeliczenieWalutyDoPLN przeliczenieWalutyDoPLN;
-	private final PrzeliczenieWalutyDoUSD przeliczenieWalutyDoUSD;
+	private final OdczytKursuWalutyService odczytKursuWalutyService;
+	private final SaldoRepository saldoRepository;
+
 
 	/**
 	 * Metoda realizuje przeliczenie dla podanej waluty
 	 *
-	 * @param konto             konto użytkownika
-	 * @param przeliczanaWaluta przeliczona waluta
-	 * @return przeliczone konto
+	 * @param konto        konto użytkownika
+	 * @param walutaZ      waluta, z której wykonujemy przeliczenie
+	 * @param WalutaDo     waluta, z której wykonujemy przeliczenie
+	 * @param kwotaWymiany kwota do wymiany
+	 * @return zaktualizowane konto użytkownika
 	 */
-	public Konto przeliczWalute(Konto konto, Waluta przeliczanaWaluta) {
+	public Konto przeliczWalute(Konto konto, Waluta walutaZ, Waluta WalutaDo, BigDecimal kwotaWymiany) {
 
-		IPrzeliczenieWaluty przeliczenieWaluty = zwrocTypPrzeliczeniaWaluty(przeliczanaWaluta);
-
-		boolean wynikWeryfikacji = przeliczenieWaluty.weryfikujMozliwoscPrzeliczeniaWaluty(konto);
-		if (!wynikWeryfikacji) {
-			throw new PrzeliczenieWalutyException("Blad weryfikacji dla przeliczenia");
+		var weryfikacjaPrzeliczenia = weryfikujMozliwoscPrzeliczeniaWaluty(konto, walutaZ, WalutaDo, kwotaWymiany);
+		if (weryfikacjaPrzeliczenia.czyWeryfikacjaZBledem()) {
+			throw new PrzeliczenieWalutyException(weryfikacjaPrzeliczenia.komunikatBledu());
 		}
-		var zaktualizowaneKonto = przeliczenieWaluty.wykonajPrzeliczenieWaluty(konto, przeliczanaWaluta);
-		kontoRepository.save(zaktualizowaneKonto);
-		return zaktualizowaneKonto;
+
+		return wykonajPrzeliczenieWaluty(konto, walutaZ, WalutaDo, kwotaWymiany);
 	}
 
-	private IPrzeliczenieWaluty zwrocTypPrzeliczeniaWaluty(Waluta przeliczanaWaluta) {
-		log.info("Wykonuje metode zwrocTypPrzeliczeniaWaluty dla waluty: {}", przeliczanaWaluta);
-		IPrzeliczenieWaluty przeliczenieWaluty;
-
-		switch (przeliczanaWaluta) {
-			case ZLOTY -> przeliczenieWaluty = przeliczenieWalutyDoPLN;
-			case DOLAR_AMERYKANSKI -> przeliczenieWaluty = przeliczenieWalutyDoUSD;
-			default -> {
-				log.error("Blad zwracania typu przeliczenia waluty. Wprowadzono nieobslugiwana walute: {}", przeliczanaWaluta);
-				throw new PrzeliczenieWalutyException("Blad zwracania typu przeliczenia waluty. Wprowadzono nieobslugiwana walute: {}" + przeliczanaWaluta);
-			}
-		}
-		return przeliczenieWaluty;
+	private WeryfikacjaPrzeliczenia weryfikujMozliwoscPrzeliczeniaWaluty(Konto konto, Waluta walutaZ, Waluta walutaDo, BigDecimal kwotaWymiany) {
+		return new WeryfikacjaPrzeliczenia()
+				.weryfikujIstnienieSaldaDlaWaluty(konto.getSalda(), walutaZ)
+				.weryfikujIstnienieSaldaDlaWaluty(konto.getSalda(), walutaDo)
+				.weryfikujStanKonta(konto.getSalda(), walutaZ, kwotaWymiany);
 	}
 
+
+	//TODO: @Transactional
+	private Konto wykonajPrzeliczenieWaluty(Konto konto, Waluta walutaZ, Waluta walutaDo, BigDecimal kwotaWymiany) {
+
+		var saldoZ = odczytajSaldoZKonta(konto, walutaZ);
+		saldoZ.setSaldoKonta(saldoZ.getSaldoKonta().subtract(kwotaWymiany));
+
+		var saldoDo = odczytajSaldoZKonta(konto, walutaDo);
+		var walutaOdczytu = odczytajWaluteObca(walutaZ, walutaDo);
+		var kierunekPrzeliczenia = odczytajKierunekPrzeliczania(walutaZ);
+		BigDecimal pobranyKursWaluty = odczytKursuWalutyService.odczytajKursWaluty(walutaOdczytu, kierunekPrzeliczenia);
+		var przeliczoneSrodkiPoWymianie = kwotaWymiany.multiply(pobranyKursWaluty);
+		saldoDo.setSaldoKonta(saldoDo.getSaldoKonta().add(przeliczoneSrodkiPoWymianie));
+
+		saldoRepository.save(saldoZ);
+		saldoRepository.save(saldoDo);
+		return konto;
+	}
+
+	private Saldo odczytajSaldoZKonta(Konto konto, Waluta waluta) {
+		return konto.getSalda().stream().filter(s -> s.getWaluta().equals(waluta)).findFirst().get();
+	}
+	private Waluta odczytajWaluteObca(Waluta walutaZ, Waluta walutaDo) {
+		return Waluta.ZLOTY == walutaZ ? walutaDo : walutaZ;
+	}
+	private KierunekPrzeliczania odczytajKierunekPrzeliczania(Waluta walutaZ) {
+		return Waluta.ZLOTY == walutaZ ? KierunekPrzeliczania.SPRZEDAZ : KierunekPrzeliczania.ZAKUP;
+	}
 }
