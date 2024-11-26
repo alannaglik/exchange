@@ -1,3 +1,3 @@
 # exchange-an
 
-Przyrost aplikacji znajduje się na branchu [main](https://github.com/alannaglik/exchange/tree/master)
+Przyrost aplikacji znajduje się na branchu [master](https://github.com/alannaglik/exchange/tree/master)
