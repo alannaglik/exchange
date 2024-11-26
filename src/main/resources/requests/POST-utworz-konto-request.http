@@ -1,0 +1,17 @@
+#Utworzenie konta użytkownika
+POST http://localhost:8080/api/konta
+
+#Przykład:
+#Pole saldoKontaUSD jest opcjonalne
+POST http://localhost:8080/api/konta
+Content-Type: application/json
+
+{
+  "imie": "Benjamin",
+  "nazwisko": "Franklin",
+  "saldoKontaPLN": 150,
+  "saldoKontaUSD": 20
+}
+
+
+

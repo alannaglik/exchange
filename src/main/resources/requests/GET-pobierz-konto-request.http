@@ -1,0 +1,5 @@
+GET http://localhost:8080/api/konta/{{identyfikatorKonta}}
+
+#Przykład - pobierz konto użytkownika o id 1
+GET http://localhost:8080/api/konta/1
+

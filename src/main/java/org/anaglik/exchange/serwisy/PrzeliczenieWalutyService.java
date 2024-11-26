@@ -12,6 +12,7 @@ import org.anaglik.exchange.wyjatki.PrzeliczenieWalutyException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 
 /**
@@ -66,9 +67,9 @@ public class PrzeliczenieWalutyService {
 		//Przeliczam saldoDo
 		var saldoDo = odczytajSaldoZKonta(konto, walutaDo);
 		var walutaOdczytu = odczytajWaluteObca(walutaZ, walutaDo);
-		if (Objects.requireNonNull(walutaZ) == Waluta.ZLOTY) {
+		if (walutaZ == Waluta.ZLOTY) {
 			var pobranyKursWaluty = odczytKursuWalutyService.odczytajKursWaluty(walutaOdczytu, KierunekPrzeliczania.SPRZEDAZ);
-			var przeliczoneSrodkiPoWymianie = kwotaWymiany.divide(pobranyKursWaluty); //RoundingMode
+			var przeliczoneSrodkiPoWymianie = kwotaWymiany.divide(pobranyKursWaluty, RoundingMode.HALF_UP);
 			saldoDo.setSaldoKonta(saldoDo.getSaldoKonta().add(przeliczoneSrodkiPoWymianie));
 		} else {
 			var pobranyKursWaluty = odczytKursuWalutyService.odczytajKursWaluty(walutaOdczytu, KierunekPrzeliczania.ZAKUP);

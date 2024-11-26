@@ -1,0 +1,5 @@
+#Przeliczanie stanu sald do PLN
+PUT http://localhost:8080/api/salda/{{identyfikatorKonta}}/przeliczDoPln/{{kodWaluty}}/{{kwota}}
+
+#Przykład - przeliczenie 70$ na PLN dla konta użytkownika o id 1
+PUT http://localhost:8080/api/salda/1/przeliczDoPln/USD/70

@@ -21,9 +21,11 @@
         <commons.lang3.version>3.15.0</commons.lang3.version>
         <org.json.version>20240303</org.json.version>
         <org.testng.version>7.10.2</org.testng.version>
+        <swagger.version>3.0.0</swagger.version>
     </properties>
 
     <dependencies>
+        <!-- SPRING CORE -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -36,6 +38,8 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+
+        <!-- DB -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -46,6 +50,14 @@
             <artifactId>liquibase-core</artifactId>
         </dependency>
 
+        <!-- SWAGGER teraz OpenAPI-->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
+        <!-- Utils -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -61,6 +73,8 @@
             <artifactId>json</artifactId>
             <version>${org.json.version}</version>
         </dependency>
+
+        <!-- Testowanie -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -98,6 +112,14 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <!-- na potrzeby OpenAPI - nie generuje @PathVariable -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <parameters>true</parameters>
                 </configuration>
             </plugin>
             <plugin>

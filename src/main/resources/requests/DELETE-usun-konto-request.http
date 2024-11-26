@@ -1,0 +1,5 @@
+#Usuń konto użytkownika wraz posiadanymi saldami
+DELETE http://localhost:8080/api/konta/{{identyfikatorKonta}}
+
+#Przykład
+DELETE http://localhost:8080/api/konta/1

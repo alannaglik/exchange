@@ -1,5 +1,6 @@
 package org.anaglik.exchange.modele;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -40,6 +41,7 @@ public class Saldo {
 	@Column(name = "saldo_konta", nullable = false, precision = 12, scale = 4)
 	private BigDecimal saldoKonta = BigDecimal.ZERO;
 
+	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name = "konto_id")
 	private Konto konto;

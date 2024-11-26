@@ -10,7 +10,6 @@ import org.anaglik.exchange.serwisy.SaldoService;
 import org.anaglik.exchange.utils.SaldoUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,12 +35,8 @@ public class KontoController {
 	private final SaldoService saldoService;
 
 	@PostMapping
-	public ResponseEntity<Long> utworzKontoUzytkownika(@Valid @RequestBody KontoPayloadRecord kontoPayload, BindingResult bindingResult) {
+	public ResponseEntity<Long> utworzKontoUzytkownika(@Valid @RequestBody KontoPayloadRecord kontoPayload) {
 		log.info("Wykonuje metode utworzKontoUzytkownika.");
-		if (bindingResult.hasErrors()) {
-			log.error("Blad walidacji przy tworzeniu konta uzytkownika.");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-		}
 
 		var konto = Konto.builder()
 				.imie(kontoPayload.imie())

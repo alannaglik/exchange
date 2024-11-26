@@ -6,16 +6,16 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd
 		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <changeSet author="Utworzenie tabeli KONTO" id="exancge-an">
+    <changeSet author="Utworzenie tabeli konto" id="exancge-an">
         <!-- Walidacje -->
         <preConditions>
             <not>
-                <tableExists tableName="KONTO"/>
+                <tableExists tableName="konto"/>
             </not>
         </preConditions>
-        <createTable tableName="KONTO">
-            <column autoIncrement="true" name="id" type="LONG">
-                <constraints primaryKey="true"/>
+        <createTable tableName="konto">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="imie" type="VARCHAR(50)">
                 <constraints nullable="false"/>
@@ -24,22 +24,26 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+        <createSequence
+                sequenceName="konto_sequence"
+                startValue="1"
+        />
         <!-- Roll back -->
         <rollback>
-            <dropTable tableName="KONTO"/>
+            <dropTable tableName="konto"/>
         </rollback>
-        <comment>Utworzono tabele 'KONTO'</comment>
+        <comment>Utworzono tabele 'konto'</comment>
     </changeSet>
-    <changeSet author="Utworzenie tabeli SALDO" id="exancge-an">
+    <changeSet author="Utworzenie tabeli saldo" id="exancge-an">
         <!-- Walidacje -->
         <preConditions>
             <not>
-                <tableExists tableName="SALDO"/>
+                <tableExists tableName="saldo"/>
             </not>
         </preConditions>
-        <createTable tableName="SALDO">
-            <column autoIncrement="true" name="id" type="LONG">
-                <constraints primaryKey="true"/>
+        <createTable tableName="saldo">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="waluta" type="VARCHAR(30)">
                 <constraints nullable="false"/>
@@ -53,9 +57,9 @@
         </createTable>
         <!-- Roll back -->
         <rollback>
-            <dropTable tableName="SALDO"/>
+            <dropTable tableName="saldo"/>
         </rollback>
-        <comment>Utworzono tabele 'SALDO'</comment>
+        <comment>Utworzono tabele 'saldo'</comment>
     </changeSet>
 
 </databaseChangeLog>

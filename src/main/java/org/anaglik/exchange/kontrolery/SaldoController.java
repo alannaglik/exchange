@@ -1,16 +1,15 @@
 package org.anaglik.exchange.kontrolery;
 
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.anaglik.exchange.enumy.Waluta;
-import org.anaglik.exchange.kontrolery.payload.SaldoPayloadRecord;
-import org.anaglik.exchange.serwisy.KontoService;
 import org.anaglik.exchange.serwisy.SaldoService;
-import org.anaglik.exchange.utils.WynikOdpowiedziUtils;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,40 +24,34 @@ import java.math.BigDecimal;
 @RequestMapping("/api/salda")
 @AllArgsConstructor
 @Slf4j
+@Validated
 public class SaldoController {
 
 	private final SaldoService saldoService;
-	private final KontoService kontoService;
 
 	@PutMapping("/{identyfikatorKonta}/przeliczDoPln/{kodWaluty}/{kwota}")
-	@Validated
-	public ResponseEntity aktualizujSaldoDoPln(@Valid SaldoPayloadRecord saldo, BindingResult bindingResult) {
+	public ResponseEntity aktualizujSaldoDoPln(
+			@PathVariable @NotNull (message = "Pole identyfikator konta jest wymagany") long identyfikatorKonta,
+			@PathVariable @NotEmpty(message = "Pole kod waluty jest wymagany") @Size(min = 3, max = 3, message = "Pole kod waluty musi zawierać 3 znaki") String kodWaluty,
+			@PathVariable @NotNull(message = "Pole kwota jest wymagana") double kwota) {
+
 		log.info("Wykonuje metode aktualizujSaldoDoPln.");
-
-		if (bindingResult.hasErrors()) {
-			log.error("Blad walidacji parametru przy tworzeniu salda.");
-			return WynikOdpowiedziUtils.bladParametruWywolania(bindingResult);
-		}
-
-		return ResponseEntity.ok(saldoService.aktualizujKontoDlaPrzeliczeniaWaluty(saldo.identyfikatorKonta(),
-				Waluta.getByKodWaluty(saldo.kodWaluty()),
+		return ResponseEntity.ok(saldoService.aktualizujKontoDlaPrzeliczeniaWaluty(identyfikatorKonta,
+				Waluta.getByKodWaluty(kodWaluty),
 				Waluta.ZLOTY,
-				BigDecimal.valueOf(saldo.kwota())));
+				BigDecimal.valueOf(kwota)));
 	}
 
 	@PutMapping("/{identyfikatorKonta}/przeliczZPln/{kodWaluty}/{kwota}")
-	@Validated
-	public ResponseEntity aktualizujSaldoZPln(@Valid SaldoPayloadRecord saldo, BindingResult bindingResult) {
+	public ResponseEntity aktualizujSaldoZPln(
+			@PathVariable @NotNull(message = "Pole identyfikator konta jest wymagany") long identyfikatorKonta,
+			@PathVariable @NotEmpty(message = "Pole kod waluty jest wymagany") @Size(min = 3, max = 3, message = "Pole kod waluty musi zawierać 3 znaki") String kodWaluty,
+			@PathVariable @NotNull(message = "Pole kwota jest wymagana") double kwota) {
 		log.info("Wykonuje metode przeliczZPln.");
 
-		if (bindingResult.hasErrors()) {
-			log.error("Blad walidacji parametru przy tworzeniu salda.");
-			return WynikOdpowiedziUtils.bladParametruWywolania(bindingResult);
-		}
-
-		return ResponseEntity.ok(saldoService.aktualizujKontoDlaPrzeliczeniaWaluty(saldo.identyfikatorKonta(),
+		return ResponseEntity.ok(saldoService.aktualizujKontoDlaPrzeliczeniaWaluty(identyfikatorKonta,
 				Waluta.ZLOTY,
-				Waluta.getByKodWaluty(saldo.kodWaluty()),
-				BigDecimal.valueOf(saldo.kwota())));
+				Waluta.getByKodWaluty(kodWaluty),
+				BigDecimal.valueOf(kwota)));
 	}
 }

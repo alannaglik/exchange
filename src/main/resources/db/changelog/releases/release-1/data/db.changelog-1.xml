@@ -9,11 +9,11 @@
     <changeSet author="Dodanie uzytkownika konta" id="echange-an">
         <!-- Walidacje -->
         <preConditions>
-            <tableExists tableName="KONTO"/>
+            <tableExists tableName="konto"/>
         </preConditions>
 
         <sql>
-            INSERT INTO KONTO VALUES (1, 'Jan', 'Kowalski')
+            INSERT INTO konto VALUES (1, 'Jan', 'Kowalski')
         </sql>
         <comment>Dodanie testowych sald użytkownika do bazy</comment>
     </changeSet>

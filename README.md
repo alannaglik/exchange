@@ -4,12 +4,12 @@
 
 ### TODO:
 * Transakcyjność dla operacji zapisu wymiany waluty
-* Rest API - OpenAPI Swagger
 
 # Funkcjonalność aplikacji:
 * udostępnia REST API dla obsługi kont użytkowników. 
 * umożliwia wymianę pieniędzy pomiędzy PLN <-> USD, EUR wg aktualnego kursu wymiany NBP (http://api.nbp.pl/)
 * zapisuje stan danych do bazy H2 (z użyciem liquidbase)
+* Rest API - OpenAPI Swagger (http://localhost:8080/swagger-ui/index.html)
 
 # REST API aplikacji
 ## Utworzenie konta użytkownika:
@@ -77,5 +77,5 @@ Dane do zalogowania w konsoli H2:
 
 * Datasource: jdbc:h2:mem:exchange
 * Użytkownik: user
-* Hasło: xxx
+* Hasło: 
 
