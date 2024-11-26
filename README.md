@@ -1,6 +1,10 @@
 # Opis działania aplikacji extange
-* Autor: Alan Naglik
-* Data: 22.11.2024
+* Autor: _Alan Naglik_
+* Data: _22.11.2024_
+
+### TODO:
+* Transakcyjność dla operacji zapisu wymiany waluty
+* Rest API - OpenAPI Swagger
 
 # Funkcjonalność aplikacji:
 * udostępnia REST API dla obsługi kont użytkowników. 
